@@ -21,10 +21,10 @@ public class MecanumConstants {
      */
     public  Vector frontLeftVector = new Vector(convertToPolar[0], convertToPolar[1]).normalize();
     public  double maxPower = 1;
-    public  String leftFrontMotorName = "leftFront";
-    public  String leftRearMotorName = "leftRear";
-    public  String rightFrontMotorName = "rightFront";
-    public  String rightRearMotorName = "rightRear";
+    public  String leftFrontMotorName = "cm1";
+    public  String leftRearMotorName = "cm0";
+    public  String rightFrontMotorName = "cm2";
+    public  String rightRearMotorName = "cm3";
     public  DcMotorSimple.Direction leftFrontMotorDirection = DcMotorSimple.Direction.REVERSE;
     public  DcMotorSimple.Direction leftRearMotorDirection = DcMotorSimple.Direction.REVERSE;
     public  DcMotorSimple.Direction rightFrontMotorDirection = DcMotorSimple.Direction.FORWARD;
