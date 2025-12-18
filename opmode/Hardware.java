@@ -34,6 +34,7 @@ public class Hardware {
     public double robotX, robotY, robotH;
     private int intakeSpeedIndex = 0;
     private final double[] speeds = {0.25, 0.5, 0.75, 1};
+    public boolean artifactsLaunched;
     int gateAngle = 270;
 
     VeloPIDFController flywheelController;
@@ -93,28 +94,27 @@ public class Hardware {
         // insert kinematics here
         double targetTicksPerRev = 3750;
         double targetTicksPerSecond = targetTicksPerRev * flywheel.getMotorType().getMaxRPM() / 60;
-        //flywheel.setPower(
-        //        flywheelController.calcPower(flywheel.getVelocity(), targetTicksPerSecond));
-        flywheel.setPower(1);
+        double power = flywheelController.calcPower(flywheel.getVelocity(), targetTicksPerSecond);
+        power = 1;
+        flywheel.setPower(power);
+        flywheel2.setPower(power);
     }
-    public void aimTurret(Telemetry telemetry){
+    public void aimTurret(){
         recalculateRobotPos();
-        double targetY = 132;
         double targetX = 12;
+        double targetY = 132;
         double targetHeading = Math.atan2(targetY-robotY, targetX-robotX) - Math.PI/2 - robotH;
         double gearRatio = 100.0/12;
         double targetRevolutions = targetHeading/(2*Math.PI) * gearRatio;
         double targetTicks = turret.getMotorType().getTicksPerRev() * targetRevolutions;
         turret.setTargetPosition((int)targetTicks);
-        telemetry.addData("Revolutions", targetRevolutions);
-        telemetry.addData("Turret Target",targetTicks);
-        telemetry.addData("Turret Pos", turret.getCurrentPosition());
         turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         turret.setPower(1);
     }
     public void aimRamp(){
         recalculateRobotPos();
     }
+    public void shoot() {}
     public void intakeON(){
         intake.setPower(speeds[intakeSpeedIndex]);
     }

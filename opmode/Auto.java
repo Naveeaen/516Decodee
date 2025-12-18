@@ -2,99 +2,78 @@ package org.firstinspires.ftc.teamcode.opmode;
 
 import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
-import com.pedropathing.geometry.FuturePose;
 import com.pedropathing.geometry.Pose;
-import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.util.Timer;
 
-import java.util.Map;
-
 @Autonomous(name = "AutonoMoose")
 public class Auto extends LinearOpMode {
     Hardware robot;
-    Timer timer;
+    Timer pathTime;
+    Timer afterPathTime;
     int pathState;
 
-    final Map<String, Pose> poses = Map.ofEntries(
-            Map.entry("start", new Pose(130, 112, 0)),
-            Map.entry("launch", new Pose(113, 112, 45)),
-            Map.entry("pickup1Control", new Pose(94, 96)),
-            Map.entry("pickup1Start", new Pose(104, 84.5, 0)),
-            Map.entry("pickup1End", new Pose(126, 83.5, 0))
-    );
+    Pose
+            start = new Pose(0, 0, 0),
+            launch = new Pose(0, 100, Math.toRadians(45)),
+            pickup1Control = new Pose(94, 96),
+            pickup1Start = new Pose(104, 84.5, 0),
+            pickup1End = new Pose(126, 83.5, 0);
 
-    public void followPath(String p1, String p2, String p3){
+    public void followPath(Pose p1, Pose p2) { followPath(new BezierLine(p1, p2)); }
+    public void followPath(Pose... poses) { followPath(new BezierCurve(poses)); }
+    public void followPath(BezierCurve path){
+        if(robot.follower.isBusy()) return;
         robot.follower.followPath(
                 robot.follower.pathBuilder()
-                        .addPath(new BezierCurve(poses.get(p1), poses.get(p2), poses.get(p3)))
-                        .setLinearHeadingInterpolation(poses.get(p1).getHeading(), poses.get(p2).getHeading())
-                        .build()
-        );
-    }
-    public void followPath(String p1, String p2){
-        robot.follower.followPath(
-                robot.follower.pathBuilder()
-                        .addPath(new BezierLine(poses.get(p1), poses.get(p2)))
-                        .setLinearHeadingInterpolation(poses.get(p1).getHeading(), poses.get(p2).getHeading())
+                        .addPath(path)
+                        .setLinearHeadingInterpolation(path.getFirstControlPoint().getHeading(), path.getLastControlPoint().getHeading())
                         .build()
         );
     }
 
     @Override
-    public void runOpMode() throws InterruptedException {
+    public void runOpMode() {
         robot = new Hardware();
         robot.init(hardwareMap);
+        pathTime = new Timer();
 
         waitForStart();
 
-        timer.restart();
+        pathTime.restart();
         pathState = 0;
-        robot.follower.setStartingPose(poses.get("start"));
+        robot.follower.setStartingPose(start);
+
         while(opModeIsActive()){
             robot.follower.update();
             switch (pathState){
                 case 0:
-                    followPath("start", "launch");
+                    followPath(start, launch);
                     robot.runFlywheel();
-                    nextPathHold(5);
+                    robot.aimTurret();
+                    robot.aimRamp();
+                    robot.shoot();
+                    if(robot.artifactsLaunched) nextPath();
                 case 1:
-                    followPath("launch", "pickup1Start", "pickup1Control");
+                    followPath(launch, pickup1Control, pickup1Start);
                     nextPath();
                 case 2:
-                    followPath("pickup1Start", "pickup1End");
+                    followPath(pickup1Start, pickup1End);
                 case 3:
-                    followPath("pickup1End", "launch");
+                    followPath(pickup1End, launch);
                 case 4:
-                    followPath("launch", "pickup2Start");
+                    followPath(launch, pickup1Start);
 
             }
         }
     }
 
-    public void nextPath(){
-        if(robot.follower.atParametricEnd()){
+    public void nextPath() {
+        if (robot.follower.atParametricEnd()) {
             pathState++;
-            timer.restart();
+            pathTime.restart();
         }
-    }
-    public void nextPath(boolean condition){
-        if(condition) nextPath();
-    }
-    public void nextPath(long targetTime){
-        nextPath(timer.elapsedSeconds() >= targetTime);
-    }
-    public void nextPath(boolean condition, long targetTime){
-        if(condition) nextPath(targetTime);
-    }
-    public void nextPathHold(long targetTime){
-        if(!robot.follower.atParametricEnd()) timer.restart();
-        else nextPath(targetTime);
-    }
-    public void nextPathHold(boolean condition, long targetTime){
-        if(!robot.follower.atParametricEnd()) timer.restart();
-        else nextPath(condition, targetTime);
     }
 }
