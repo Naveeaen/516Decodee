@@ -19,7 +19,9 @@ public class TeleOpp extends LinearOpMode {
 
         double speedMod = 1;
 
-        double[] gateVoltages = {3.0, 1.5, 1.8};
+        double rampPos = 0;
+
+        /*double[] gateVoltages = {3.0, 1.5, 1.8};
         double prevVoltage;
         double nextVoltage = 3;
         int gateIndex = 0;
@@ -27,7 +29,7 @@ public class TeleOpp extends LinearOpMode {
         int gateRevs = 0;
 
         if(robot.gateLEncoder.getVoltage() > 3.0) robot.gateL.setPosition(1);
-        else robot.gateL.setPosition(0.5);
+        else robot.gateL.setPosition(0.5);*/
 
         waitForStart();
 
@@ -49,12 +51,12 @@ public class TeleOpp extends LinearOpMode {
             }
 
             //driver2 controls
-            if (gamepad2.back && !backPressed) {
-                backPressed = true;
+            if (gamepad2.x && !xPressed) {
+                xPressed = true;
                 intakeIsOn = !intakeIsOn;
                 if (intakeIsOn) robot.intakeON();
                 else robot.intakeOFF();
-            } else if (!gamepad2.back) backPressed = false;
+            } else if (!gamepad2.x) xPressed = false;
 
             if (gamepad2.dpad_up && !dpUPressed) {
                 dpUPressed = true;
@@ -63,19 +65,13 @@ public class TeleOpp extends LinearOpMode {
             } else if (!gamepad2.dpad_up) dpUPressed = false;
             //Input.back.toggle(robot::intakeON, robot::intakeOFF);
 
-            if (gamepad2.x && !xPressed) {
-                xPressed = true;
-                pressingX = !pressingX;
-                double pow = pressingX ? 0.4 : 0;
-                robot.flywheel.setPower(pow);
-                robot.flywheel2.setPower(pow);
-            } else if (!gamepad2.x) xPressed = false;
-
-            /*if(gamepad2.y && !yPressed){
-                yPressed = true;
-            } else if(!gamepad2.y) yPressed = false;*/
-
             if (gamepad2.y && !yPressed) {
+                yPressed = true;
+                robot.runFlywheel(pressingY);
+                pressingY = !pressingY;
+            } else if (!gamepad2.y) yPressed = false;
+
+            /*if (gamepad2.y && !yPressed) {
                 gateForwards = true;
                 gateIndex += (gateIndex != gateVoltages.length - 1) ? 1 : -(gateVoltages.length - 1);
                 yPressed = true;
@@ -104,21 +100,14 @@ public class TeleOpp extends LinearOpMode {
             } else if (gateForwards) robot.gateL.setPosition(1);
             else if(gateBackwards) robot.gateL.setPosition(0);
 
-            telemetry.addData("GATE", robot.gateLEncoder.getVoltage());
+            telemetry.addData("GATE", robot.gateLEncoder.getVoltage());*/
 
-            /*if(gamepad2.x && !xPressed){
-                xPressed = true;
-                robot.aimTurret(telemetry);
-            } else if (!gamepad2.x){
-                xPressed = false;
-            }*/
-
-            /*robot.ramp.setPosition(rampPos);
+            robot.ramp.setPosition(rampPos);
             if(gamepad2.left_stick_y > 0){
                 rampPos += 0.1;
             } else if (gamepad2.left_stick_y < 0){
                 rampPos -= 0.1;
-            }*/
+            }
 
             telemetry.addData("Flywheel", (robot.flywheel.getVelocity()*60)/28);
             telemetry.addData("Intake Power", robot.intake.getPower());

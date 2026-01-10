@@ -28,9 +28,9 @@ public class Hardware {
     }
 
     //define hardware stuff (variables)
-    Servo gateR, ramp, gateL;
-    DcMotorEx intake, flywheel, flywheel2, turret;
-    AnalogInput gateLEncoder;
+    Servo releaser, ramp;
+    DcMotorEx intake, flywheel, flywheel2;
+    //AnalogInput gateLEncoder;
     public double robotX, robotY, robotH;
     private int intakeSpeedIndex = 0;
     private final double[] speeds = {0.25, 0.5, 0.75, 1};
@@ -56,24 +56,21 @@ public class Hardware {
         flywheel.getMotorType().setMaxRPM(6000);
         flywheel.getMotorType().setAchieveableMaxRPMFraction(0.966);
 
-        flywheel2 = hwMap.get(DcMotorEx.class, "cm0");
+        flywheel2 = hwMap.get(DcMotorEx.class, "cm2");
         flywheel2.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         flywheel2.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
         flywheelController = new VeloPIDFController(RobotConstants.flywheelP, RobotConstants.flywheelI, RobotConstants.flywheelD);
 
-        turret = hwMap.get(DcMotorEx.class, "em3");
+        /*turret = hwMap.get(DcMotorEx.class, "em3");
         turret.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         turret.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         turret.getMotorType().setMaxRPM(117);
-        turret.getMotorType().setTicksPerRev(1425.1);
+        turret.getMotorType().setTicksPerRev(1425.1);*/
 
-        gateL = hwMap.get(Servo.class, "es5");
-        gateLEncoder = hwMap.get(AnalogInput.class, "ea0");
+        releaser = hwMap.get(Servo.class, "cs1");
 
-        gateR = hwMap.get(Servo.class, "cs1");
-
-        //ramp = hwMap.get(Servo.class, "cs2");
+        ramp = hwMap.get(Servo.class, "es0");
     }
 
     public void recalculateRobotPos(){
@@ -83,8 +80,8 @@ public class Hardware {
         robotH = position.getHeading();
     }
 
-    public void runFlywheel(){
-        recalculateRobotPos();
+    public void runFlywheel(boolean on){
+        /*recalculateRobotPos();
         // position of the target in inches from the bottom left corner
         double targetX = 12;
         double targetY = 132;
@@ -95,11 +92,11 @@ public class Hardware {
         double targetTicksPerRev = 3750;
         double targetTicksPerSecond = targetTicksPerRev * flywheel.getMotorType().getMaxRPM() / 60;
         double power = flywheelController.calcPower(flywheel.getVelocity(), targetTicksPerSecond);
-        power = 1;
-        flywheel.setPower(power);
-        flywheel2.setPower(power);
+        power = 1;*/
+        flywheel.setPower(on? 0:speeds[intakeSpeedIndex]);
+        //flywheel2.setPower(on? 0:speeds[intakeSpeedIndex]);
     }
-    public void aimTurret(){
+    /*public void aimTurret(){
         recalculateRobotPos();
         double targetX = 12;
         double targetY = 132;
@@ -110,7 +107,7 @@ public class Hardware {
         turret.setTargetPosition((int)targetTicks);
         turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         turret.setPower(1);
-    }
+    }*/
     public void aimRamp(){
         recalculateRobotPos();
     }
@@ -123,6 +120,6 @@ public class Hardware {
     }
     public void switchIntakeSpeed(){
         intakeSpeedIndex += (intakeSpeedIndex != speeds.length-1) ? 1 : -(speeds.length-1);
-        intakeON();
+        runFlywheel(false);
     }
 }

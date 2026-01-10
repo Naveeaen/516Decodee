@@ -51,10 +51,10 @@ public class Auto extends LinearOpMode {
             switch (pathState){
                 case 0:
                     followPath(start, launch);
-                    robot.runFlywheel();
-                    robot.aimTurret();
-                    robot.aimRamp();
-                    robot.shoot();
+                    //robot.runFlywheel();
+                    //robot.aimTurret();
+                    //robot.aimRamp();
+                    //robot.shoot();
                     if(robot.artifactsLaunched) nextPath();
                 case 1:
                     followPath(launch, pickup1Control, pickup1Start);
